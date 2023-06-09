@@ -16,7 +16,7 @@ app.use(router);
 
 dbConnect();
 
-// to see images in browser from local storage
+// to access local storage in the browser
 app.use("/storage", express.static("storage"));
 
 // always use errorHandler middleware at the end of all other middlewares

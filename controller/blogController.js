@@ -8,6 +8,7 @@ const BlogDTO = require("../dto/blog");
 const mongodbIdPattern = /^[0-9a-fA-F]{24}$/;
 
 const blogController = {
+  // create blog method
   async create(req, res, next) {
     // 1. validate req.body
 
@@ -69,7 +70,25 @@ const blogController = {
     return res.status(201).json({ blog: blogDto });
   },
 
-  async getAll(req, res, next) {},
+  // get all blogs method
+  async getAll(req, res, next) {
+    try {
+      const blogs = await Blog.find({});
+
+      const blogsDto = [];
+
+      for (let i = 0; i < blogs.length; i++) {
+        const dto = new BlogDTO(blogs[i]);
+        blogsDto.push(dto);
+      }
+
+      return res.status(200).json({ blogs: blogsDto });
+    } catch (error) {
+      return next(error);
+    }
+  },
+
+  // get blog by id method
   async getById(req, res, next) {},
   async update(req, res, next) {},
   async delete(req, res, next) {},

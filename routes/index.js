@@ -19,19 +19,19 @@ router.post("/logout", auth, authController.logout);
 router.get("/refresh", authController.refresh);
 
 // Blog
-// 1. create
+// 1. create blog
 router.post("/blog", auth, blogController.create);
 
-// 2. read all blogs
+// 2. get all blogs
 router.get("/blog/all", auth, blogController.getAll);
 
-// 3. read blog by id
+// 3. get blog by id
 router.get("/blog/:id", auth, blogController.getById);
 
-// 4. update
+// 4. update blog
 router.put("/blog", auth, blogController.update);
 
-// 5. delete
+// 5. delete blog
 router.delete("/blog/:id", auth, blogController.delete);
 
 // Comment
