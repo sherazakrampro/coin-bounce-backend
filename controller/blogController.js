@@ -3,6 +3,7 @@ const fs = require("fs");
 const Blog = require("../models/blog");
 const { BACKEND_SERVER_PATH } = require("../config/index");
 const BlogDTO = require("../dto/blog");
+const BlogDetailsDTO = require("../dto/blog-details");
 
 // regular expression to match the string pattern against mongodb id pattern
 const mongodbIdPattern = /^[0-9a-fA-F]{24}$/;
@@ -89,7 +90,37 @@ const blogController = {
   },
 
   // get blog by id method
-  async getById(req, res, next) {},
+  async getById(req, res, next) {
+    // schema
+    const getByIdSchema = Joi.object({
+      id: Joi.string().regex(mongodbIdPattern).required(),
+    });
+
+    // validation of id
+    const { error } = getByIdSchema.validate(req.params);
+
+    if (error) {
+      return next(error);
+    }
+
+    let blog;
+
+    // destructuring id from request parameters
+    const { id } = req.params;
+
+    try {
+      blog = await Blog.findOne({ _id: id }).populate("author");
+    } catch (error) {
+      return next(error);
+    }
+
+    // blog DTO
+    const blogDto = new BlogDetailsDTO(blog);
+
+    // response
+    return res.status(200).json({ blog: blogDto });
+  },
+
   async update(req, res, next) {},
   async delete(req, res, next) {},
 };
