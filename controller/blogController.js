@@ -121,7 +121,81 @@ const blogController = {
     return res.status(200).json({ blog: blogDto });
   },
 
-  async update(req, res, next) {},
+  // update blog method
+  async update(req, res, next) {
+    // schema
+    const updateBlogSchema = Joi.object({
+      title: Joi.string().required(),
+      content: Joi.string().required(),
+      author: Joi.string().regex(mongodbIdPattern).required(),
+      blogId: Joi.string().regex(mongodbIdPattern).required(),
+      photo: Joi.string(),
+    });
+
+    // validation
+    const { error } = updateBlogSchema.validate(req.body);
+
+    // destructuring from request body
+    const { title, content, author, blogId, photo } = req.body;
+
+    let blog;
+
+    try {
+      const blog = await Blog.findOne({ _id: blogId });
+    } catch (error) {
+      return next(error);
+    }
+
+    // if updating photo
+    if (photo) {
+      let previousPhoto = blog.photoPath;
+
+      // spliting back-slash and we need character at last index(-1)
+      previousPhoto = previousPhoto.split("/").at(-1);
+
+      // delete photo
+      fs.unlinkSync(`storage/${previousPhoto}`);
+
+      // read as buffer
+      const buffer = Buffer.from(
+        photo.replace(/^data:image\/(png|jpg|jpeg); base64,/, ""),
+        "base64"
+      );
+
+      // allot a random name
+      const imagePath = `${Date.now()}-${author}.png`;
+
+      // save locally
+      try {
+        fs.writeFileSync(`storage/${imagePath}`, buffer);
+      } catch (error) {
+        return next(error);
+      }
+
+      // updating blog
+      await Blog.updateOne(
+        { _id: blogId },
+        {
+          title,
+          content,
+          photoPath: `${BACKEND_SERVER_PATH}/storage/${imagePath}`,
+        }
+      );
+    } else {
+      await Blog.updateOne(
+        { _id: blogId },
+        {
+          title,
+          content,
+        }
+      );
+    }
+
+    // response
+    return res.status(200).json({ message: "blog updated" });
+  },
+
+  // delete blog method
   async delete(req, res, next) {},
 };
 
