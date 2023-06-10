@@ -4,6 +4,7 @@ const Blog = require("../models/blog");
 const { BACKEND_SERVER_PATH } = require("../config/index");
 const BlogDTO = require("../dto/blog");
 const BlogDetailsDTO = require("../dto/blog-details");
+const Comment = require("../models/comment");
 
 // regular expression to match the string pattern against mongodb id pattern
 const mongodbIdPattern = /^[0-9a-fA-F]{24}$/;
@@ -196,7 +197,30 @@ const blogController = {
   },
 
   // delete blog method
-  async delete(req, res, next) {},
+  async delete(req, res, next) {
+    // schema
+    const deleteBlogSchema = Joi.object({
+      id: Joi.string().regex(mongodbIdPattern).required(),
+    });
+
+    // validation of id
+    const { error } = deleteBlogSchema.validate(req.params);
+
+    // destructuring id from request parameters
+    const { id } = req.params;
+
+    // delete blog and comments on that blog
+    try {
+      await Blog.deleteOne({ _id: id });
+
+      await Comment.deleteMany({ blog: id });
+    } catch (error) {
+      return next(error);
+    }
+
+    // response
+    return res.status(200).json({ message: "blog deleted" });
+  },
 };
 
 module.exports = blogController;
