@@ -40,6 +40,6 @@ router.delete("/blog/:id", auth, blogController.delete);
 router.post("/comment", auth, commentController.create);
 
 // get comments by blog id
-router.get("/commment/:id", auth, commentController.getById);
+router.get("/comment/:id", auth, commentController.getById);
 
 module.exports = router;
