@@ -4,10 +4,19 @@ const dbConnect = require("./database/index");
 const router = require("./routes/index");
 const errorHandler = require("./middlewares/errorHandler");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
+
+// for connecting frontend with backend
+const corsOptions = {
+  credentials: true,
+  origin: ["http://localhost:3000"],
+};
 
 const app = express();
 
 app.use(cookieParser());
+
+app.use(cors(corsOptions));
 
 // it allows our app to communicate data in json format
 app.use(express.json());
